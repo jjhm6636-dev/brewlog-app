@@ -1,0 +1,17 @@
+{
+  "name": "BREW LOG",
+  "short_name": "BREW LOG",
+  "description": "카페 방문을 사진·평점·한 줄 메모로 남기는 카페 기록 앱",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff9ee",
+  "theme_color": "#fff9ee",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
