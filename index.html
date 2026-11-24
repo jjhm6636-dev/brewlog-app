@@ -413,6 +413,8 @@ header.center .logo{grid-row:1}
 .dy-add b{font-size:26px;font-weight:300;line-height:1}
 .dy-chg{position:absolute;left:0;right:0;bottom:0;font-style:normal;font-size:11px;color:#fff;text-align:center;padding:3px 0;background:rgba(30,20,14,.45)}
 .diary p,.diary q{word-break:keep-all}
+.sv-main{min-height:114px}
+.sv-ad{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 </style>
 </head>
 <body>
@@ -928,7 +930,7 @@ function renderSaved(){
   const L=saved.filter(s=>{if(!k)return true;const R=recs.filter(r=>r.cafe===s.name);return `${s.name} ${s.addr} ${R.map(r=>r.menu+' '+r.tags.join(' ')).join(' ')}`.toLowerCase().includes(k)});
   $('svList').innerHTML=L.length?L.map(s=>{const V=recs.filter(r=>r.cafe===s.name);const ph=s.photo||(V.find(r=>r.photo)||{}).photo||thumb({});
     return `<div class="sv-row"><button class="sv-main" data-sv="${s.id}"><img alt="" src="${ph}"><div><b>${esc(s.name)}</b><div class="sv-ad">${esc(s.addr||'주소 미입력')}</div>
-      <div class="sv-sc">${V.length?`<i>★</i> ${avg(V).toFixed(1)} <span>(${V.length}번 방문)</span>`:'<span>아직 안 가봤어요</span>'}</div></div></button>
+</div></button>
       <button class="sv-bm" data-unsave="${s.id}" aria-label="${esc(s.name)} 저장 해제"><svg viewBox="0 0 24 24"><use href="#i-book-f"/></svg></button></div>`}).join('')
     :`<div class="empty">${saved.length?'검색 결과가 없어요.':'아직 저장한 카페가 없어요.<br>기록 상세 화면의 저장하기나 아래 버튼으로 저장해 보세요.'}</div>`;
 }
@@ -936,13 +938,12 @@ let wSort='전체',wPrev='saved';
 function homeCity(){const c={};recs.forEach(r=>{const k=(r.area||'').split(' ')[0];if(k)c[k]=(c[k]||0)+1});return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]||''}
 const cityOf=a=>{const t=(a||'').split(' ')[0];return ({'대구광역시':'대구','서울특별시':'서울','인천광역시':'인천','대전광역시':'대전','경상북도':'경북','강원도':'강원','강원특별자치도':'강원'})[t]||t};
 function renderWish(){
-  $('wChips').innerHTML=['전체','가까운 순','랭킹 높은 순'].map(c=>`<button class="${c===wSort?'on':''}" data-ws="${c}">${c}</button>`).join('');
+  $('wChips').innerHTML=['전체','가까운 순'].map(c=>`<button class="${c===wSort?'on':''}" data-ws="${c}">${c}</button>`).join('');
   let L=wish.slice();const hc=homeCity();
   if(wSort==='가까운 순')L.sort((a,b)=>(cityOf(b.addr)===hc)-(cityOf(a.addr)===hc));
-  if(wSort==='랭킹 높은 순')L.sort((a,b)=>(b.ext||0)-(a.ext||0)||(b.cnt||0)-(a.cnt||0));
   $('wList').innerHTML=L.length?L.map(w=>{const V=recs.filter(r=>r.cafe===w.name),on=saved.some(x=>x.name===w.name);
     return `<div class="sv-row"><button class="sv-main" data-wi="${w.id}"><img alt="" src="${w.photo||thumb({})}"><div><b>${esc(w.name)}${V.length?'<span class="w-done">방문함</span>':''}</b><div class="sv-ad">${esc(w.addr||'주소 미입력')}</div>
-      <div class="sv-sc">${w.ext?`<i>★</i> ${(+w.ext).toFixed(1)}<span>${w.cnt?`(${w.cnt})`:''}</span>`:'<span>평점 정보 없음</span>'}</div></div></button>
+</div></button>
       <button class="sv-bm" data-wbm="${w.id}" aria-pressed="${on}" aria-label="${esc(w.name)} ${on?'저장 해제':'저장'}"><svg viewBox="0 0 24 24"><use href="#${on?'i-book-f':'i-book'}"/></svg></button></div>`}).join('')
     :'<div class="empty">가보고 싶은 카페를 + 버튼으로 추가해 보세요.</div>';
 }
@@ -952,9 +953,6 @@ function wishSheet(){
   <label class="l">사진</label><div class="drop" id="sdrop"><span>탭해서 사진 추가</span><input type="file" accept="image/*" id="sfile" aria-label="사진 선택"></div>
   <label class="l" for="wn">카페 이름 *</label><input class="f" id="wn" placeholder="예) 죠지">
   <label class="l" for="wa">주소</label><input class="f" id="wa" placeholder="예) 서울 중구 을지로12길 6">
-  <div class="row"><div><label class="l" for="we">평점 (선택)</label><input class="f" id="we" type="number" min="0" max="5" step="0.1" placeholder="4.5"></div>
-  <div><label class="l" for="wc">리뷰 수 (선택)</label><input class="f" id="wc" type="number" min="0" step="1" placeholder="124"></div></div>
-  <p class="hint">지도 앱에서 본 평점과 리뷰 수를 적어 두면 '랭킹 높은 순'으로 정렬돼요.</p>
   <div class="btns"><button class="btn" data-act="close">취소</button><button class="btn pri" data-act="saveWish">추가하기</button></div>`);
 }
 function openSaved(){svPrev=curView;svq='';$('svq').value='';renderSaved();go('saved')}
@@ -1042,7 +1040,7 @@ $('sheet').addEventListener('click',e=>{
   if(act==='edit')form(a.dataset.id);
   if(act==='del'){const i=recs.findIndex(x=>x.id===a.dataset.id),r=recs[i];recs.splice(i,1);save();close();render();showToast('기록을 삭제했어요',()=>{recs.splice(i,0,r)})}
   if(act==='saveWish'){const n=$('wn').value.trim();if(!n){$('wn').focus();$('wn').style.borderColor='var(--rust)';return}
-    const e=parseFloat($('we').value),c=parseInt($('wc').value);
+    const e=NaN,c=NaN;
     wish.unshift({id:'w'+Date.now(),name:n,addr:$('wa').value.trim(),photo:draft.photo||'',ext:isNaN(e)?null:Math.min(5,Math.max(0,e)),cnt:isNaN(c)?null:c});save();close();renderWish();showToast('가보고 싶은 카페에 추가했어요')}
   if(act==='saveCafe'){const n=$('sn').value.trim();if(!n){$('sn').focus();$('sn').style.borderColor='var(--rust)';return}
     saved.unshift({id:'v'+Date.now(),name:n,addr:$('sa').value.trim(),photo:draft.photo});save();close();render();showToast('카페를 저장했어요')}
