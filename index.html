@@ -406,6 +406,13 @@ header.center .logo{grid-row:1}
 .tag3 .tg{padding:0 8px;white-space:nowrap}
 .kw-c{grid-template-columns:repeat(auto-fill,minmax(80px,1fr));padding:0}
 .kw-c .tg{white-space:nowrap;padding:0 8px}
+.dy-ph{position:relative;display:block;width:78px;min-height:100%;cursor:pointer;background:var(--line);overflow:hidden}
+.dy-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dy-ph input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.dy-add{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;color:var(--sub);font-size:12px;gap:2px;border:1.5px dashed var(--sub);border-radius:0 12px 12px 0}
+.dy-add b{font-size:26px;font-weight:300;line-height:1}
+.dy-chg{position:absolute;left:0;right:0;bottom:0;font-style:normal;font-size:11px;color:#fff;text-align:center;padding:3px 0;background:rgba(30,20,14,.45)}
+.diary p,.diary q{word-break:keep-all}
 </style>
 </head>
 <body>
@@ -653,7 +660,7 @@ function renderDiary(){
   const best=M.slice().sort((a,b)=>b.rating-a.rating||b.date.localeCompare(a.date))[0];
   const quote=diary[mKey]||`${mon}월의 커피는\n여전히, 좋은 하루의 시작.`;
   const sum=M.length?`이번 달은 새로운 카페 ${fresh}곳을 발견했어요.${best?(best.menu?` 특히 ${esc(best.cafe)}의 ${esc(best.menu.split('+')[0].trim())}${josa(best.menu.split('+')[0].trim())} 참 좋았어요.`:` 특히 ${esc(best.cafe)}${josa(best.cafe)} 참 좋았어요.`):''}`:'이번 달 첫 기록을 남기면 다이어리가 채워져요.';
-  $('diaryBox').innerHTML=`<div class="tx"><button class="pen" id="diaryEdit" aria-label="다이어리 문장 쓰기"><svg style="width:20px;height:20px"><use href="#i-pen"/></svg></button><div><q>${esc(quote)}</q><p>${sum}</p></div></div>${best&&best.photo?`<img alt="" src="${best.photo}">`:'<span style="background:var(--line)"></span>'}`;
+  $('diaryBox').innerHTML=`<div class="tx"><button class="pen" id="diaryEdit" aria-label="다이어리 문장 쓰기"><svg style="width:20px;height:20px"><use href="#i-pen"/></svg></button><div><q>${esc(quote)}</q><p>${sum}</p></div></div><label class="dy-ph" aria-label="다이어리 사진 ${diary['photo:'+mKey]||(best&&best.photo)?'바꾸기':'추가'}">${(diary['photo:'+mKey]||(best&&best.photo))?`<img alt="" src="${diary['photo:'+mKey]||best.photo}"><i class="dy-chg">바꾸기</i>`:'<span class="dy-add"><b>+</b>사진</span>'}<input type="file" accept="image/*" id="dyFile"></label>`;
 }
 const CATS={'커피':['라떼','원두'],'카페':['분위기','테라스','창가','혼카페','작업하기','책 읽기','데이트']};
 const catOf=r=>{const c=Object.keys(CATS).filter(k=>r.tags.some(t=>CATS[k].includes(t)));if(!c.length||r.tags.includes('디저트'))c.push('기타');return c};
@@ -986,6 +993,8 @@ $('svq').addEventListener('input',e=>{svq=e.target.value;renderSaved()});
 $('wBack').addEventListener('click',()=>go(wPrev==='wish'?'home':wPrev));
 $('wAdd').addEventListener('click',wishSheet);
 $('moreBack').addEventListener('click',()=>go(morePrev==='more'?'home':morePrev));
+document.addEventListener('change',async e=>{if(e.target.id!=='dyFile'||!e.target.files[0])return;
+  try{const d=await shrink(e.target.files[0],600);diary['photo:'+mKey]=d;save();renderDiary();showToast('다이어리 사진을 넣었어요')}catch(err){showToast('사진을 불러오지 못했어요')}});
 $('gearBtn').addEventListener('click',()=>go('settings'));
 $('searchBtn').addEventListener('click',()=>{only3=false;tagF=null;listView=true;renderArchive();go('archive');$('q').focus()});
 $('peek').addEventListener('click',()=>{if(recs.length){showStart=false;renderHome();hdrState();window.scrollTo(0,0);return}addSamples();showToast('예시 기록을 불러왔어요')});
