@@ -374,6 +374,7 @@ header.center .logo{padding-left:.18em}
 #moreBack{grid-column:1;grid-row:1;margin-left:-4px}
 header.center .logo{grid-row:1}
 #logoBtn{cursor:pointer}
+.peek[hidden]{display:none}
 .st{display:inline-flex;gap:2px;flex:none;line-height:0;background:none;color:inherit;font-size:0;letter-spacing:0}
 .st.sm{gap:1px}
 .s1{display:block;flex:none}
@@ -399,6 +400,12 @@ header.center .logo{grid-row:1}
 .mp-res p{margin:0;padding:14px;color:var(--sub);font-size:14px}
 .pin.res{background:var(--card);outline:2px solid var(--rust)}
 .mp-act .add{display:block;width:100%;margin-top:8px;min-height:44px;border-radius:99px;border:1.5px solid var(--rust);background:none;color:var(--rust-ink);font-weight:700}
+#tagBox{display:flex;flex-wrap:wrap;gap:8px}
+#tagBox .tg{flex:none;padding:0 14px;min-width:0}
+.tag3{grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;padding:0}
+.tag3 .tg{padding:0 8px;white-space:nowrap}
+.kw-c{grid-template-columns:repeat(auto-fill,minmax(80px,1fr));padding:0}
+.kw-c .tg{white-space:nowrap;padding:0 8px}
 </style>
 </head>
 <body>
@@ -432,7 +439,7 @@ header.center .logo{grid-row:1}
         <div class="copy"><h1>첫 기록을<br>남겨 볼까요</h1><p>좋은 커피가 더 특별한 하루를 만듭니다</p></div>
         <button class="cta" data-go="add">첫 기록 시작하기</button>
       </div>
-      <button class="peek" id="peek">예시 기록으로 먼저 둘러보기</button>
+      <button class="peek" id="peek" hidden>홈으로 돌아가기</button>
     </div>
 
     <!-- 기록이 있을 때: 메인 홈 -->
@@ -536,8 +543,6 @@ header.center .logo{grid-row:1}
     <div class="menu-list">
       <label>홈 상단 사진 바꾸기 <span class="chev">›</span><input type="file" accept="image/*" id="heroFile"></label>
       <button id="heroReset">홈 상단 기본 그림으로 <span class="chev">›</span></button>
-      <button id="loadSample">예시 기록 불러오기 <span class="chev">›</span></button>
-      <button id="clearSample">예시 기록만 지우기 <span class="chev">›</span></button>
       <button class="danger" id="clearAll">모든 기록 지우기 <span class="chev">›</span></button>
     </div>
     <p class="page-h" style="color:var(--sub);font-size:13px;margin-top:14px">기록과 사진은 지금 사용하는 브라우저에만 저장돼요.</p>
@@ -562,44 +567,21 @@ const KAKAO_KEY='50552706dffc2e36293b94d0264cd3f6';
 </script>
 <script>
 {
-const KEY='brewlog-v3',WKEY='brewlog-wish-v1',SKEY='brewlog-saved-v3',DKEY='brewlog-diary-v3',HKEY='brewlog-hero';
+const KEY='bl-app-records',WKEY='bl-app-wish',SKEY='bl-app-saved',DKEY='bl-app-diary',HKEY='bl-app-hero';
 const TAGS=['분위기','데이트','라떼','테라스','디저트','창가','혼카페','원두','책 읽기','작업하기','브런치','조용한'];
 const DAYS=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
 const now=new Date(),iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
 const today=iso(now),ago=n=>iso(new Date(now.getFullYear(),now.getMonth(),now.getDate()-n));
 const yearAgo=n=>iso(new Date(now.getFullYear()-1,now.getMonth(),now.getDate()-n));
-const SAMPLE=[
- {id:'s1',cafe:'접속',menu:'크림소다 2종',rating:4.5,note:'초록, 빨강 크림소다에 쿠키 장식까지. 사진 찍기 좋은 곳.',date:'2026-08-31',area:'대구 중구',addr:'대구 중구 동성로 36-1',tags:['분위기','데이트','디저트'],photo:'img/s1.jpg?v=2',fav:true},
- {id:'s2',cafe:'오디와이 커피 로스터스',menu:'아이스 아메리카노 + 도넛',rating:4,note:'창밖으로 탁 트인 루프탑 뷰. 원두 향이 좋고 도넛도 맛있었다.',date:'2026-08-30',area:'인천 계양구',tags:['원두','테라스'],photo:'img/s2.jpg?v=2',photos:['img/s2.jpg?v=2','img/s2b.jpg']},
- {id:'s3',cafe:'원잇투메종탄방',menu:'망고 롤케이크 + 아이스 아메리카노',rating:4.5,note:'망고가 듬뿍 든 롤케이크에 단추 장식이 귀엽다. 크림이 가볍다.',date:'2026-08-15',area:'대전 서구',tags:['디저트','데이트','브런치'],photo:'img/s3.jpg?v=2'},
- {id:'s8',cafe:'레이크410',menu:'블루베리 요거트 + 베이글',rating:4,note:'음료 세 잔 나눠 마시기 좋았다. 베이글 쫀득함.',date:'2026-08-13',area:'경북 영천',tags:['분위기'],photo:'img/s8.jpg?v=2'},
- {id:'s9',cafe:'정상에서',menu:'초코 파르페',rating:4.5,note:'빈티지 소품이 가득한 공간. 화려한 파르페에 오래 머물고 싶었다.',date:'2026-07-30',area:'경북 경주',tags:['분위기','디저트'],photo:'img/s9.jpg?v=2',fav:true},
- {id:'s5',cafe:'주디마리',menu:'푸딩 파르페 + 초코 푸딩 + 아이스 아메리카노',rating:4.5,note:'레트로한 파르페 잔이 귀엽다. 초코 푸딩도 탱글.',date:'2026-07-18',area:'서울 마포구',tags:['디저트','데이트'],photo:'img/s5.jpg?v=2'},
- {id:'s6',cafe:'랜드로드 커피',menu:'과일 샌드 + 아메리카노',rating:4,note:'과일이 신선하고 크림이 부드러웠다.',date:'2026-07-05',area:'대구 중구',tags:['디저트'],photo:'img/s6.jpg?v=3'},
- {id:'s10',cafe:'고양이똥',menu:'아이스 아메리카노 + 초코 티라미수',rating:4,note:'창밖으로 초록 나무가 보이는 창가 자리. 티라미수 크림이 진했다.',date:'2026-07-01',area:'인천 계양구',tags:['창가','디저트'],photo:'img/s10.jpg?v=2'},
- {id:'s7',cafe:'고도. 정',menu:'무화과 치즈케이크 + 아이스 아메리카노',rating:4.5,note:'계절 끝자락에 간 카페. 제철 맞은 무화과와 케이크가 정말 맛있었다.',date:'2025-09-27',area:'대구 중구',tags:['디저트','분위기'],photo:'img/s7.jpg?v=2'}
-];
-const SAMPLE_SAVED=[
- {id:'v1',name:'오브도레 드 펌킨스',addr:'대구 남구 현충로5길 6',photo:'img/v1.jpg'},
- {id:'v2',name:'힙스',addr:'대구 중구 동성로4길 109 2층',photo:'img/v2.jpg'},
- {id:'v3',name:'접속',addr:'대구 중구 동성로 36-1',photo:'img/s1.jpg?v=2'},
- {id:'v4',name:'오디와이 커피 로스터스',addr:'인천광역시 계양구 선주로34번길 6-1',photo:'img/s2.jpg?v=2'},
- {id:'v5',name:'원잇투메종탄방',addr:'대전광역시 서구 탄방동 1276',photo:'img/s3.jpg?v=2'},
- {id:'v6',name:'오후애',addr:'경상북도 포항시 북구 두호동 해안로',photo:'img/v6.jpg'},
- {id:'v7',name:'정상에서',addr:'경상북도 경주시 원효로170번길 3',photo:'img/s9.jpg?v=2'}
-];
+const SAMPLE=[];
+const SAMPLE_SAVED=[];
 const get=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const put=(k,v)=>{try{localStorage.setItem(k,v);return true}catch(e){return false}};
 const load=(k,d)=>{try{const v=JSON.parse(get(k));return v??d}catch(e){return d}};
 let recs=load(KEY,[]),saved=load(SKEY,[]),diary=load(DKEY,{});
 {const ids=new Set(SAMPLE.map(x=>x.id));if(recs.some(r=>/^s\d+$/.test(r.id))){recs=recs.filter(r=>!/^s\d+$/.test(r.id)||ids.has(r.id)).map(r=>ids.has(r.id)?{...SAMPLE.find(x=>x.id===r.id),fav:r.fav??SAMPLE.find(x=>x.id===r.id).fav}:r);SAMPLE.forEach(x=>{if(!recs.some(r=>r.id===x.id))recs.push(x)})}}
 {const ids=new Set(saved.map(x=>x.id));if(saved.some(x=>/^v\d$/.test(x.id)))SAMPLE_SAVED.forEach(x=>{if(!ids.has(x.id))saved.push(x)})}
-const SAMPLE_WISH=[
- {id:'w1',name:'죠지',addr:'서울 중구 을지로12길 6',photo:'img/w1.jpg',ext:4.5,cnt:124},
- {id:'w2',name:'카라멜스테이션',addr:'강원 동해시 발한로 219-11',photo:'img/w2.jpg',ext:4.4,cnt:134},
- {id:'w3',name:'오브도레 드 펌킨스',addr:'대구 남구 현충로5길 6',photo:'img/v1.jpg',ext:4.3,cnt:56},
- {id:'w4',name:'힙스',addr:'대구 중구 동성로4길 109 2층',photo:'img/v2.jpg',ext:4.5,cnt:128}
-];
+const SAMPLE_WISH=[];
 let wish=load(WKEY,null);if(!Array.isArray(wish))wish=recs.some(r=>/^s\d+$/.test(r.id))?SAMPLE_WISH.slice():[];
 saved.forEach(x=>{if(x.id==='v1')x.addr='대구 남구 현충로5길 6'});wish.forEach(x=>{if(x.id==='w3')x.addr='대구 남구 현충로5길 6'});
 let keepStart=false,showStart=false,curView='home',morePrev='home';
@@ -626,7 +608,7 @@ function applyHero(){
 }
 function renderHome(){
   const first=!recs.length||showStart;
-  $('peek').textContent=recs.length?'홈으로 돌아가기':'예시 기록으로 먼저 둘러보기';
+  $('peek').hidden=!recs.length;
   $('start').style.display=first?'':'none';$('main').style.display=first?'none':'';
   hdrState();
   if(first)return;
@@ -762,7 +744,7 @@ function pickPlace(i){const p=sres[i];if(!p)return;const known=cafeList().find(c
   if(known){selPlace=null;selCafe=known.name;city=known.city;renderMap()}else{selPlace=p;renderMap();drawRes()}}
 const placeArea=p=>{const t=(p.address_name||p.road_address_name||'').split(' ');return [cityOf(t[0]||''),t[1]||''].filter(Boolean).join(' ')};
 let kmap=null,kOn=false,kOv=[],kCity=null;
-const GKEY='brewlog-geo';let geo=load(GKEY,{});
+const GKEY='bl-app-geo';let geo=load(GKEY,{});
 function geoOf(c){
   return new Promise(res=>{
     if(geo[c.name])return res(geo[c.name]);
@@ -802,8 +784,8 @@ function hdrState(){
   h.classList.toggle('center',m||(curView==='home'&&(!recs.length||showStart)));h.classList.toggle('lg',m);
   $('gearBtn').hidden=true;$('searchBtn').hidden=true;$('moreBack').hidden=!m;
 }
-const PKEY='brewlog-profile';
-let prof=load(PKEY,null)||{name:'지윤',handle:'@brew.jiyun',photo:''};
+const PKEY='bl-app-profile';
+let prof=load(PKEY,null)||{name:'커피 기록가',handle:'',photo:''};
 function renderMore(){
   $('pfAv').innerHTML=prof.photo?`<img alt="" src="${prof.photo}">`:`<span>${esc((prof.name||'?').slice(0,1))}</span>`;
   $('pfName').textContent=prof.name||'이름 없음';$('pfHandle').textContent=prof.handle||'';
@@ -1055,7 +1037,7 @@ $('sheet').addEventListener('click',e=>{
     wish.unshift({id:'w'+Date.now(),name:n,addr:$('wa').value.trim(),photo:draft.photo||'',ext:isNaN(e)?null:Math.min(5,Math.max(0,e)),cnt:isNaN(c)?null:c});save();close();renderWish();showToast('가보고 싶은 카페에 추가했어요')}
   if(act==='saveCafe'){const n=$('sn').value.trim();if(!n){$('sn').focus();$('sn').style.borderColor='var(--rust)';return}
     saved.unshift({id:'v'+Date.now(),name:n,addr:$('sa').value.trim(),photo:draft.photo});save();close();render();showToast('카페를 저장했어요')}
-  if(act==='saveProf'){prof={...prof,name:$('pfN').value.trim()||'지윤',handle:$('pfH').value.trim(),photo:draft.photo||''};put(PKEY,JSON.stringify(prof))||showToast('저장 공간이 부족해요');close();renderMore();showToast('내 정보를 저장했어요')}
+  if(act==='saveProf'){prof={...prof,name:$('pfN').value.trim()||'커피 기록가',handle:$('pfH').value.trim(),photo:draft.photo||''};put(PKEY,JSON.stringify(prof))||showToast('저장 공간이 부족해요');close();renderMore();showToast('내 정보를 저장했어요')}
   if(act==='copyBk'){const code=JSON.stringify({v:1,recs,saved,diary,prof});navigator.clipboard.writeText(code).then(()=>showToast('백업 코드를 복사했어요')).catch(()=>{$('bkIn').value=code;$('bkIn').select();showToast('아래 칸의 코드를 직접 복사해 주세요')})}
   if(act==='restoreBk'){try{const d=JSON.parse($('bkIn').value);if(!Array.isArray(d.recs))throw 0;const R=recs,S=saved;recs=d.recs;saved=d.saved||[];diary=d.diary||{};if(d.prof){prof=d.prof;put(PKEY,JSON.stringify(prof))}save();close();render();showToast('기록을 복원했어요',()=>{recs=R;saved=S})}catch(err){$('bkErr').textContent='백업 코드를 읽을 수 없어요. 전체를 빠짐없이 붙여넣었는지 확인해 주세요.';$('bkErr').hidden=false}}
   if(act==='saveDiary'){diary[mKey]=$('dq').value.trim();if(!diary[mKey])delete diary[mKey];save();close();renderDiary()}
@@ -1072,8 +1054,6 @@ $('heroFile').addEventListener('change',async e=>{
   e.target.value='';
 });
 $('heroReset').addEventListener('click',()=>{try{localStorage.removeItem(HKEY)}catch(e){}applyHero();showToast('기본 그림으로 돌렸어요')});
-$('loadSample').addEventListener('click',()=>{addSamples();showToast('예시 기록을 불러왔어요')});
-$('clearSample').addEventListener('click',()=>{const R=recs,S=saved;recs=recs.filter(r=>!/^s\d+$/.test(r.id));const W=wish;saved=saved.filter(s=>!/^v\d$/.test(s.id));wish=wish.filter(w=>!/^w\d$/.test(w.id));save();render();showToast('예시 기록을 지웠어요',()=>{recs=R;saved=S;wish=W})});
 $('clearAll').addEventListener('click',()=>{
   if(!confirmClear){confirmClear=true;$('clearAll').firstChild.textContent='한 번 더 누르면 모두 지워져요 ';return}
   const R=recs,S=saved;recs=[];saved=[];save();render();confirmClear=false;$('clearAll').firstChild.textContent='모든 기록 지우기 ';
